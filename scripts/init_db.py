@@ -1,4 +1,4 @@
-from connection import get_connection
+from src.db.connection import get_connection
 from pathlib import Path
 import sys
 
