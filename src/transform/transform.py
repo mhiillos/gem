@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from typing import TypedDict, Literal
 import json
 
@@ -12,7 +13,7 @@ ItemType = Literal["high", "low"]
 class FactItem(TypedDict):
   item_id: int
   price: int
-  timestamp: int
+  timestamp: datetime
   type: ItemType
 
 # Transform input JSON object into dimension table and fact table entries
@@ -34,16 +35,20 @@ def transform(data, mapping):
       fact_entries.append({
         "item_id": int(k),
         "price": int(v.get("high", 0)),
-        "timestamp": v["highTime"],
+        "timestamp": datetime.fromtimestamp(v["highTime"], UTC),
         "type": "high"
       })
     if v.get("low") is not None:
       fact_entries.append({
         "item_id": int(k),
         "price": int(v.get("low", 0)),
-        "timestamp": v["lowTime"],
+        "timestamp": datetime.fromtimestamp(v["lowTime"], UTC),
         "type": "low"
       })
+
+  # Filter out fact_entries that do not exist in dim_entries
+  dim_ids = {item["item_id"] for item in dim_entries}
+  fact_entries = [f for f in fact_entries if f["item_id"] in dim_ids]
 
   return (dim_entries, fact_entries)
 
