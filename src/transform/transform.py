@@ -1,6 +1,5 @@
 from datetime import datetime, UTC
 from typing import TypedDict, Literal
-import json
 
 class DimItem(TypedDict):
   item_id: int
