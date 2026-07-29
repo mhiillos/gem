@@ -18,7 +18,7 @@ $$;
 CREATE TABLE IF NOT EXISTS fact_item (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   item_id INT NOT NULL,
-  price INT NOT NULL,
+  price BIGINT NOT NULL,
   timestamp TIMESTAMPTZ NOT NULL,
   type item_type NOT NULL,
 
