@@ -1,8 +1,8 @@
 # This script loops through all historical data located in data/raw/ and calls run_pipeline.py
 
 from pathlib import Path
-from scripts.run_pipeline import run_pipeline
-from src.db.queries import latest_timestamp
+from gem.transform.run_pipeline import run_pipeline
+from gem.db.queries import latest_timestamp
 from datetime import datetime, timezone
 
 def main():

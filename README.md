@@ -14,6 +14,7 @@ With the following `python` packages:
 ```
 psycopg
 requests
+tabulate
 ```
 
 ## Installation
@@ -32,13 +33,13 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-Install dependencies:
+Install the package and its dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install .
 ```
 
-## Database setup
+## Database setup and insert
 Create a PostgreSQL database, and set environment variable `DB_URL` for the database:
 
 ```sql

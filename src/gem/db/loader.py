@@ -1,4 +1,4 @@
-from src.db.connection import get_connection
+from gem.db.connection import get_connection
 
 sql_dim = """
 INSERT INTO dim_item (item_id, name, high_alch, buy_limit)

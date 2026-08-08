@@ -1,9 +1,13 @@
 from pathlib import Path
-from src.db.connection import get_connection
+from gem.db.connection import get_connection
 
 SQL_DIR = Path(__file__).resolve().parents[2] / "sql"
 
 def run_query(query):
+  path = SQL_DIR / f"{query}.sql"
+  if not path.exists():
+    raise FileNotFoundError
+
   sql = (SQL_DIR / f"{query}.sql").read_text()
   with get_connection() as conn:
     with conn.cursor() as cur:

@@ -1,6 +1,6 @@
 import argparse
-from src.analysis.queries import run_query
-from src.analysis.format import print_table
+from gem.analysis.queries import run_query
+from gem.analysis.format import print_table
 
 def main():
   parser = argparse.ArgumentParser()
