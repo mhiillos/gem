@@ -3,3 +3,4 @@ __pycache__/
 data/
 *.log
 TODO.md
+src/gem.egg-info/

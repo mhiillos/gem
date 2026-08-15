@@ -9,7 +9,7 @@ def save_raw(data):
   timestamp = datetime.now(timezone.utc)
   date_path = timestamp.strftime("%Y-%m-%d")
   fname = timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
-  base_path = Path(__file__).resolve().parents[2]
+  base_path = Path(__file__).resolve().parents[3]
   full_path = base_path / "data" / "raw" / date_path / f"{fname}.json"
   full_path.parent.mkdir(parents=True, exist_ok=True)
 
