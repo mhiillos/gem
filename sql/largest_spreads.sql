@@ -27,5 +27,5 @@ JOIN latest_high h
   ON d.item_id = h.item_id
 JOIN latest_low l
   ON d.item_id = l.item_id
-ORDER BY spread DESC
+ORDER BY diff DESC
 LIMIT 50;

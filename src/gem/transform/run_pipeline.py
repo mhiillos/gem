@@ -14,13 +14,8 @@ def run_pipeline(file_path, update_mapping=False):
     data = json.load(f)
     mapping = get_mapping(update_mapping)
     dim_entries, fact_entries = transform(data, mapping)
-    try:
-      sys.stdout.write(f"[gem] Loading {len(dim_entries)} dim rows, {len(fact_entries)} fact rows to database...")
-      load(dim_entries, fact_entries)
-    except Exception as e:
-      sys.stderr.write(f"[gem] error loading data to database: {e}\n")
-      raise
-
+    sys.stdout.write(f"[gem] Loading {len(dim_entries)} dim rows, {len(fact_entries)} fact rows to database...")
+    load(dim_entries, fact_entries)
     sys.stdout.write("ok\n")
 
 if __name__ == "__main__":

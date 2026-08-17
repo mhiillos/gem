@@ -9,11 +9,10 @@ def graph(item_name):
   high_prices = np.array([x[1] for x in rows], dtype=float)
   low_prices = np.array([x[2] for x in rows], dtype=float)
 
-  print(high_prices)
-  print(low_prices)
   plot(
       item_name,
       timestamps,
       high_prices,
       low_prices,
       )
+

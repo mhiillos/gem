@@ -4,11 +4,15 @@ import matplotlib.dates as mdates
 import numpy as np
 
 def plot(item_name, timestamps, high_prices, low_prices):
-  fig, ax = plt.subplots(figsize=(12, 6), layout="constrained")
+  fig, ax = plt.subplots(figsize=(12, 4), layout="constrained")
+
+  # Remove missing observations so the remaining points are connected
+  high_mask = ~np.isnan(high_prices)
+  low_mask = ~np.isnan(low_prices)
 
   ax.plot(
-    timestamps,
-    high_prices,
+    timestamps[high_mask],
+    high_prices[high_mask],
     "o-",
     markersize=5,
     linewidth=1.5,
@@ -16,8 +20,8 @@ def plot(item_name, timestamps, high_prices, low_prices):
   )
 
   ax.plot(
-    timestamps,
-    low_prices,
+    timestamps[low_mask],
+    low_prices[low_mask],
     "o-",
     markersize=5,
     linewidth=1.5,
@@ -39,9 +43,12 @@ def plot(item_name, timestamps, high_prices, low_prices):
   t2 = datetime.now()
   t1 = t2 - timedelta(days=7)
   ax.set_xlim(t1, t2)
+
+  lowest = np.nanmin([low_prices, high_prices])
+  highest = np.nanmax([low_prices, high_prices])
   ax.set_ylim(
-    np.nanmin(low_prices) * 0.99,
-    np.nanmax(high_prices) * 1.01)
+    np.nanmin(lowest) * 0.99,
+    np.nanmax(highest) * 1.01)
 
   plt.show()
 
