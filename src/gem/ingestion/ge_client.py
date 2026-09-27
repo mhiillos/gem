@@ -3,13 +3,13 @@ import json
 import sys
 from pathlib import Path
 
-BASE_URL = "https://prices.runescape.wiki/api/v1/osrs"
+BASE_URL = "https://prices.runescape.wiki/api/v2/osrs"
 
 HEADERS = {
     "User-Agent": "gem - github.com/mhiillos/gem"
     }
 
-MAPPING_CACHE = Path(__file__).parents[2] / "data" / "cache" / "mapping.json"
+MAPPING_CACHE = Path(__file__).parents[3] / "data" / "cache" / "mapping.json"
 
 # Fetches the latest price information for every item, or for a single item given by ID.
 def get_latest_prices(id = None):
@@ -21,9 +21,20 @@ def get_latest_prices(id = None):
   response.raise_for_status()
   return response.json()
 
+# Fetches price and volume information from the past hour
+def get_1h(timestamp = None):
+  url = f"{BASE_URL}/1h"
+  params = {
+      "timestamp": timestamp
+  }
+  response = requests.get(url, headers=HEADERS, params=params)
+  response.raise_for_status()
+  return response.json()
+
 # Fetches list of objects mapping the ID with name and other information.
 def get_mapping(update_mapping=False):
   url = f"{BASE_URL}/mapping"
+
   if not MAPPING_CACHE.exists() or update_mapping:
     sys.stdout.write("[gem] fetching new mapping from api...")
     response = requests.get(url, headers=HEADERS)

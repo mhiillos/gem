@@ -6,22 +6,16 @@ CREATE TABLE IF NOT EXISTS dim_item (
   buy_limit INT NOT NULL
 );
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'item_type') THEN
-    CREATE TYPE item_type AS ENUM ('high', 'low');
-  END IF;
-END
-$$;
-
--- Fact table: information of an item's price at a specific point in time
+-- Fact table: information of an item's price and volume within a 1h window
 CREATE TABLE IF NOT EXISTS fact_item (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   item_id INT NOT NULL,
-  price BIGINT NOT NULL,
-  timestamp TIMESTAMPTZ NOT NULL,
-  type item_type NOT NULL,
+  high_price BIGINT,
+  low_price BIGINT,
+  high_price_volume INT NOT NULL,
+  low_price_volume INT NOT NULL,
+  window_timestamp TIMESTAMPTZ NOT NULL,
 
   FOREIGN KEY (item_id) REFERENCES dim_item(item_id) ON DELETE CASCADE,
-  UNIQUE(item_id, timestamp, type)
+  UNIQUE(item_id, window_timestamp)
 );

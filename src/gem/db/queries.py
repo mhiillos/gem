@@ -2,7 +2,7 @@ from gem.db.connection import get_connection
 
 def latest_timestamp():
   query = """
-  SELECT MAX(timestamp)
+  SELECT MAX(window_timestamp)
   FROM fact_item
   """
   with get_connection() as conn:

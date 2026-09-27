@@ -1,4 +1,4 @@
-# This scirpt takes a file path as an argument, transforms and loads the data to the database.
+# This script takes a file path as an argument, transforms and loads the data to the database.
 #
 # Usage: python -m scripts.run_pipeline path/to/file.json
 

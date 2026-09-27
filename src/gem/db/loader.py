@@ -7,8 +7,8 @@ ON CONFLICT DO NOTHING;
 """
 
 sql_fact = """
-INSERT INTO fact_item (item_id, price, timestamp, type)
-VALUES (%(item_id)s, %(price)s, %(timestamp)s, %(type)s)
+INSERT INTO fact_item (item_id, high_price, low_price, high_price_volume, low_price_volume, window_timestamp)
+VALUES (%(item_id)s, %(high_price)s, %(low_price)s, %(high_price_volume)s, %(low_price_volume)s, %(window_timestamp)s)
 ON CONFLICT DO NOTHING;
 """
 
@@ -22,5 +22,5 @@ def load(dim_entries, fact_entries):
 
     except Exception as e:
       conn.rollback()
-      raise
+      raise e
 

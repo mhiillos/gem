@@ -1,5 +1,5 @@
 from datetime import datetime, UTC
-from typing import TypedDict, Literal
+from typing import TypedDict
 
 class DimItem(TypedDict):
   item_id: int
@@ -7,13 +7,18 @@ class DimItem(TypedDict):
   high_alch: int
   buy_limit: int
 
-ItemType = Literal["high", "low"]
 
 class FactItem(TypedDict):
   item_id: int
-  price: int
-  timestamp: datetime
-  type: ItemType
+  high_price: int | None
+  low_price: int | None
+  high_price_volume: int
+  low_price_volume: int
+  window_timestamp: datetime
+
+def parse_price(v, key):
+  val = v.get(key)
+  return int(val) if val is not None else None
 
 # Transform input JSON object into dimension table and fact table entries
 def transform(data, mapping):
@@ -28,26 +33,16 @@ def transform(data, mapping):
       "buy_limit": int(item.get("limit", 0))
     })
 
+  window_timestamp = datetime.fromtimestamp(data["timestamp"], UTC)
   for k, v in data["data"].items():
-    # Add high and low data separately
-    if v.get("high") is not None:
-      fact_entries.append({
-        "item_id": int(k),
-        "price": int(v.get("high", 0)),
-        "timestamp": datetime.fromtimestamp(v["highTime"], UTC),
-        "type": "high"
-      })
-    if v.get("low") is not None:
-      fact_entries.append({
-        "item_id": int(k),
-        "price": int(v.get("low", 0)),
-        "timestamp": datetime.fromtimestamp(v["lowTime"], UTC),
-        "type": "low"
-      })
-
-  # Filter out fact_entries that do not exist in dim_entries
-  dim_ids = {item["item_id"] for item in dim_entries}
-  fact_entries = [f for f in fact_entries if f["item_id"] in dim_ids]
+    fact_entries.append({
+      "item_id": int(k),
+      "high_price": parse_price(v, "avgHighPrice"),
+      "low_price": parse_price(v, "avgLowPrice"),
+      "high_price_volume": int(v.get("highPriceVolume", 0)),
+      "low_price_volume": int(v.get("lowPriceVolume", 0)),
+      "window_timestamp": window_timestamp,
+    })
 
   return (dim_entries, fact_entries)
 

@@ -1,4 +1,5 @@
 from gem.db.connection import get_connection
+import gem
 from pathlib import Path
 import sys
 
@@ -9,8 +10,8 @@ def read_schema(path):
 
 def main():
   with get_connection() as conn:
-    base_path = Path(__file__).resolve().parents[2]
-    models_path = base_path / "src" / "db" / "models.sql"
+    base_path = Path(__file__).resolve().parents[1]
+    models_path = base_path / "src" / "gem" / "db" / "models.sql"
     schema = read_schema(models_path)
 
     with conn.cursor() as cur:

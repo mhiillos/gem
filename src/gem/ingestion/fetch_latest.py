@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
-from gem.ingestion.ge_client import get_latest_prices
+from gem.ingestion.ge_client import get_1h
 
 # Saves raw json data, and attaches the timestamp to it
 def save_raw(data):
@@ -22,7 +22,7 @@ def save_raw(data):
 def fetch_latest():
   try:
     sys.stdout.write("[gem] fetching new data...\n")
-    data = get_latest_prices()
+    data = get_1h()
     if not data or "data" not in data:
       raise ValueError("Invalid API response")
     path = save_raw(data)
