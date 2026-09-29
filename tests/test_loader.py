@@ -8,17 +8,15 @@ def test_load(test_db):
 
   with test_db.cursor() as cur:
     cur.execute("""
-      SELECT item_id, price, type
+      SELECT item_id, high_price, low_price, high_price_volume, low_price_volume
       FROM fact_item
     """)
 
     rows = cur.fetchall()
 
   assert rows == [
-      (1, 10000, "high"),
-      (1, 5000, "low"),
-      (2, 20000, "high"),
-      (2, 10000, "low"),
+      (1, 10000, 5000, 50, 30),
+      (2, 20000, 10000, 20, 15),
       ]
 
 def test_load_duplicates(test_db):
@@ -32,22 +30,20 @@ def test_load_duplicates(test_db):
     """)
     count = cur.fetchone()[0]
 
-  assert count == 4
+  assert count == 2
 
 def test_load_multiple_prices_for_item(test_db):
   load(DIMS, FACTS)
-
-
   load([], FACTS3)
 
   with test_db.cursor() as cur:
     cur.execute("""
-      SELECT price
+      SELECT high_price
       FROM fact_item
       WHERE item_id = 1
     """)
     prices = [row[0] for row in cur.fetchall()]
-    assert prices == [10000, 5000, 11000]
+    assert prices == [10000, 11000]
 
 def test_load_invalid_item_id(test_db):
 
