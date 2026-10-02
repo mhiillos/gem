@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_items
+    description: "Staging model for dim_items"
+    columns:
+      - name: item_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_prices
+    description: "Staging model for fact_items"
+    columns:
+      - name: fact_id
+        data_tests:
+          - unique
+          - not_null
+      - name: item_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_items')
+              field: item_id

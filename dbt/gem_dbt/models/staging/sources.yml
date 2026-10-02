@@ -1,0 +1,6 @@
+sources:
+  - name: gem
+    schema: public
+    tables:
+      - name: fact_item
+      - name: dim_item
