@@ -3,7 +3,7 @@ from gem.db.connection import get_connection
 def latest_timestamp():
   query = """
   SELECT MAX(window_timestamp)
-  FROM fact_item
+  FROM raw.prices_1h
   """
   with get_connection() as conn:
     with conn.cursor() as cur:

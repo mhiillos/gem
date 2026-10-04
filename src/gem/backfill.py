@@ -17,5 +17,5 @@ def backfill(force=False, base_path=None):
         continue
 
     print(f"[gem] Processing {file_path.name}")
-    run_pipeline(file_path)
+    run_pipeline(file_path, file_path.relative_to(base_path))
 

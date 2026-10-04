@@ -1,9 +1,17 @@
 from datetime import datetime, timedelta, UTC
+from decimal import Decimal
 
 WINDOW_TS = 1767225600
 WINDOW_TS_LATER = WINDOW_TS + 3600
 WINDOW_DT = datetime.fromtimestamp(WINDOW_TS, UTC)
 WINDOW_DT_LATER = datetime.fromtimestamp(WINDOW_TS_LATER, UTC)
+
+# _source_file values, relative to the raw archive root
+SOURCE_FILE = "2026-01-01/2026-01-01T00:05:00Z.json"
+SOURCE_FILE_LATER = "2026-01-01/2026-01-01T01:05:00Z.json"
+MAPPING_SOURCE_FILE = "mapping/2026-01-01T00:05:00Z.json"
+
+# --- Raw API responses (/1h) ---
 
 # Clean data
 DATA1 = {
@@ -75,6 +83,20 @@ DATA5 = {
   }
 }
 
+# Fractional price (as parsed with parse_float=Decimal) and a missing volume key
+DATA6 = {
+  "timestamp": WINDOW_TS,
+  "data": {
+    "1": {
+      "avgHighPrice": Decimal("12.37"),
+      "highPriceVolume": 5,
+      "avgLowPrice": None
+    }
+  }
+}
+
+# --- Raw API response (/mapping) ---
+
 MAPPING = [
   {
     "examine": "test1",
@@ -100,128 +122,201 @@ MAPPING = [
   }
 ]
 
-
-DIMS = [
+# Item without the optional limit/lowalch/highalch fields
+MAPPING2 = [
   {
-    "item_id": 1,
-    "name": "test1",
-    "high_alch": 90000,
-    "buy_limit": 8
-  },
-  {
-    "item_id": 2,
-    "name": "test2",
-    "high_alch": 1,
-    "buy_limit": 4
+    "examine": "test3",
+    "id": 3,
+    "members": False,
+    "value": 10,
+    "icon": "test3.png",
+    "name": "test3"
   }
 ]
 
-DIMS2 = [
+# --- raw.items rows ---
+
+ITEMS = [
   {
-    "item_id": 1,
+    "id": 1,
+    "examine": "test1",
+    "members": True,
+    "lowalch": 60000,
+    "buy_limit": 8,
+    "value": 150000,
+    "highalch": 90000,
+    "icon": "test1.png",
     "name": "test1",
-    "high_alch": 11000,
-    "buy_limit": 32
+    "_source_file": MAPPING_SOURCE_FILE
   },
   {
-    "item_id": 2,
+    "id": 2,
+    "examine": "test2",
+    "members": True,
+    "lowalch": 60000,
+    "buy_limit": 4,
+    "value": 150000,
+    "highalch": 1,
+    "icon": "test2.png",
     "name": "test2",
-    "high_alch": 1,
-    "buy_limit": 8
+    "_source_file": MAPPING_SOURCE_FILE
   }
 ]
 
-FACTS = [
+# Same items after a game update changed alch values and buy limits
+ITEMS2 = [
+  {
+    "id": 1,
+    "examine": "test1",
+    "members": True,
+    "lowalch": 60000,
+    "buy_limit": 32,
+    "value": 150000,
+    "highalch": 11000,
+    "icon": "test1.png",
+    "name": "test1",
+    "_source_file": MAPPING_SOURCE_FILE
+  },
+  {
+    "id": 2,
+    "examine": "test2",
+    "members": True,
+    "lowalch": 60000,
+    "buy_limit": 8,
+    "value": 150000,
+    "highalch": 1,
+    "icon": "test2.png",
+    "name": "test2",
+    "_source_file": MAPPING_SOURCE_FILE
+  }
+]
+
+# Expected flatten_items(MAPPING2): missing optional fields become None
+ITEMS3 = [
+  {
+    "id": 3,
+    "examine": "test3",
+    "members": False,
+    "lowalch": None,
+    "buy_limit": None,
+    "value": 10,
+    "highalch": None,
+    "icon": "test3.png",
+    "name": "test3",
+    "_source_file": MAPPING_SOURCE_FILE
+  }
+]
+
+# --- raw.prices_1h rows ---
+
+# Expected flatten_prices(DATA1)
+PRICES = [
   {
     "item_id": 1,
-    "high_price": 10000,
-    "low_price": 5000,
+    "window_timestamp": WINDOW_DT,
+    "avg_high_price": 10000,
     "high_price_volume": 50,
+    "avg_low_price": 5000,
     "low_price_volume": 30,
-    "window_timestamp": WINDOW_DT
+    "_source_file": SOURCE_FILE
   },
   {
     "item_id": 2,
-    "high_price": 20000,
-    "low_price": 10000,
+    "window_timestamp": WINDOW_DT,
+    "avg_high_price": 20000,
     "high_price_volume": 20,
+    "avg_low_price": 10000,
     "low_price_volume": 15,
-    "window_timestamp": WINDOW_DT
+    "_source_file": SOURCE_FILE
   }
 ]
 
-FACTS2 = [
+# Rows relative to now, for the 7-day graph query
+PRICES2 = [
   {
     "item_id": 1,
-    "high_price": 10000,
-    "low_price": None,
+    "window_timestamp": datetime.now(UTC).replace(
+      minute=0, second=0, microsecond=0
+    ) - timedelta(hours=1),
+    "avg_high_price": 10000,
     "high_price_volume": 50,
+    "avg_low_price": None,
     "low_price_volume": 0,
-    "window_timestamp": datetime.now(UTC).replace(
-      minute=0, second=0, microsecond=0
-    ) - timedelta(hours=1)
+    "_source_file": SOURCE_FILE
   },
   {
     "item_id": 1,
-    "high_price": None,
-    "low_price": 5000,
-    "high_price_volume": 0,
-    "low_price_volume": 30,
     "window_timestamp": datetime.now(UTC).replace(
       minute=0, second=0, microsecond=0
-    ) - timedelta(hours=2)
+    ) - timedelta(hours=2),
+    "avg_high_price": None,
+    "high_price_volume": 0,
+    "avg_low_price": 5000,
+    "low_price_volume": 30,
+    "_source_file": SOURCE_FILE
   },
   {
     "item_id": 2,
-    "high_price": 20000,
-    "low_price": 10000,
+    "window_timestamp": WINDOW_DT,
+    "avg_high_price": 20000,
     "high_price_volume": 20,
+    "avg_low_price": 10000,
     "low_price_volume": 15,
-    "window_timestamp": WINDOW_DT
+    "_source_file": SOURCE_FILE
   }
 ]
 
-FACTS3 = [{
+# Expected flatten_prices(DATA5)
+PRICES3 = [{
   "item_id": 1,
-  "high_price": 11000,
-  "low_price": None,
+  "window_timestamp": WINDOW_DT_LATER,
+  "avg_high_price": 11000,
   "high_price_volume": 40,
+  "avg_low_price": None,
   "low_price_volume": 0,
-  "window_timestamp": WINDOW_DT_LATER
+  "_source_file": SOURCE_FILE_LATER
 }]
 
-FACTS4 = [{
+# Item that is not in raw.items: raw has no FK, so this must load
+PRICES4 = [{
   "item_id": 5,
-  "high_price": 10000,
-  "low_price": None,
+  "window_timestamp": WINDOW_DT,
+  "avg_high_price": 10000,
   "high_price_volume": 12,
+  "avg_low_price": None,
   "low_price_volume": 0,
-  "window_timestamp": datetime.now(UTC)
+  "_source_file": SOURCE_FILE
 }]
 
-FACTS5 = [{
+# Expected flatten_prices(DATA2)
+PRICES5 = [{
   "item_id": 1,
-  "high_price": None,
-  "low_price": 5000,
+  "window_timestamp": WINDOW_DT,
+  "avg_high_price": None,
   "high_price_volume": 0,
+  "avg_low_price": 5000,
   "low_price_volume": 30,
-  "window_timestamp": WINDOW_DT
+  "_source_file": SOURCE_FILE
 }]
 
-FACTS6 = [{
+# Expected flatten_prices(DATA3)
+PRICES6 = [{
   "item_id": 1,
-  "high_price": 10000,
-  "low_price": None,
+  "window_timestamp": WINDOW_DT,
+  "avg_high_price": 10000,
   "high_price_volume": 50,
+  "avg_low_price": None,
   "low_price_volume": 0,
-  "window_timestamp": WINDOW_DT
+  "_source_file": SOURCE_FILE
 }]
 
-FACTS7 = [{
+# Expected flatten_prices(DATA6): Decimal kept exact, missing volume stays None
+PRICES7 = [{
   "item_id": 1,
-  "high_price": 10000,
-  "low_price": None,
-  "high_price_volume": 50,
-  "low_price_volume": 0,
-  "window_timestamp": datetime.now(UTC)
+  "window_timestamp": WINDOW_DT,
+  "avg_high_price": Decimal("12.37"),
+  "high_price_volume": 5,
+  "avg_low_price": None,
+  "low_price_volume": None,
+  "_source_file": SOURCE_FILE
 }]

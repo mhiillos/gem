@@ -1,48 +1,57 @@
 from datetime import datetime, UTC
+from decimal import Decimal
 from typing import TypedDict
 
-class DimItem(TypedDict):
+class PriceRow(TypedDict):
   item_id: int
-  name: str
-  high_alch: int
-  buy_limit: int
-
-
-class FactItem(TypedDict):
-  item_id: int
-  high_price: int | None
-  low_price: int | None
-  high_price_volume: int
-  low_price_volume: int
   window_timestamp: datetime
+  avg_high_price: Decimal | None
+  high_price_volume: int | None
+  avg_low_price: Decimal | None
+  low_price_volume: int | None
+  _source_file: str
 
-def parse_price(v, key):
-  val = v.get(key)
-  return int(val) if val is not None else None
+class ItemRow(TypedDict):
+  id: int
+  examine: str
+  members: bool
+  lowalch: int
+  buy_limit: int
+  value: int
+  highalch: int
+  icon: str
+  name: str
+  _source_file: str
 
-# Transform input JSON object into dimension table and fact table entries
-def transform(data, mapping):
-  dim_entries: list[DimItem] = []
-  fact_entries: list[FactItem] = []
-
-  for item in mapping:
-    dim_entries.append({
-      "item_id": int(item["id"]),
-      "name": item["name"],
-      "high_alch": int(item.get("highalch", 0)),
-      "buy_limit": int(item.get("limit", 0))
-    })
-
+def flatten_prices(data, source_file):
+  prices: list[PriceRow] = []
   window_timestamp = datetime.fromtimestamp(data["timestamp"], UTC)
   for k, v in data["data"].items():
-    fact_entries.append({
+    prices.append({
       "item_id": int(k),
-      "high_price": parse_price(v, "avgHighPrice"),
-      "low_price": parse_price(v, "avgLowPrice"),
-      "high_price_volume": int(v.get("highPriceVolume", 0)),
-      "low_price_volume": int(v.get("lowPriceVolume", 0)),
       "window_timestamp": window_timestamp,
+      "avg_high_price": v.get("avgHighPrice"),
+      "high_price_volume": v.get("highPriceVolume"),
+      "avg_low_price": v.get("avgLowPrice"),
+      "low_price_volume": v.get("lowPriceVolume"),
+      "_source_file": source_file
     })
+  return prices
 
-  return (dim_entries, fact_entries)
+def flatten_items(data, source_file):
+  items: list[ItemRow] = []
+  for item in data:
+    items.append({
+      "id": item["id"],
+      "examine": item.get("examine"),
+      "members": item.get("members"),
+      "lowalch": item.get("lowalch"),
+      "buy_limit": item.get("limit"),
+      "value": item.get("value"),
+      "highalch": item.get("highalch"),
+      "icon": item.get("icon"),
+      "name": item.get("name"),
+      "_source_file": source_file
+    })
+  return items
 

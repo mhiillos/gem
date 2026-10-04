@@ -1,27 +1,29 @@
-# This script takes a file path as an argument, transforms and loads the data to the database.
+# This script takes a file path as an argument, and loads one archived /1h snapshot into raw.prices_1h
 #
-# Usage: python -m scripts.run_pipeline path/to/file.json
+# Usage: python -m gem.transform.run_pipeline path/to/file.json
 
-from gem.ingestion.ge_client import get_mapping
-from gem.transform.transform import transform
-from gem.db.loader import load
+from decimal import Decimal
+from pathlib import Path
+from gem.transform.transform import flatten_prices
+from gem.db.loader import load_prices
 import argparse
 import json
 import sys
 
-def run_pipeline(file_path, update_mapping=False):
+def run_pipeline(file_path, source_file=None):
+  if source_file is None:
+    source_file = Path(file_path).name
+
   with open(file_path, "r") as f:
-    data = json.load(f)
-    mapping = get_mapping(update_mapping)
-    dim_entries, fact_entries = transform(data, mapping)
-    sys.stdout.write(f"[gem] Loading {len(dim_entries)} dim rows, {len(fact_entries)} fact rows to database...")
-    load(dim_entries, fact_entries)
+    data = json.load(f, parse_float=Decimal)
+    prices = flatten_prices(data, str(source_file))
+    sys.stdout.write(f"[gem] Loading {len(prices)} raw price rows to database...")
+    load_prices(prices)
     sys.stdout.write("ok\n")
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("file_path", type=str)
-  parser.add_argument("--update_mapping", action="store_true")
   args = parser.parse_args()
-  run_pipeline(args.file_path, args.update_mapping)
+  run_pipeline(args.file_path)
 
