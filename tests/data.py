@@ -6,12 +6,9 @@ WINDOW_TS_LATER = WINDOW_TS + 3600
 WINDOW_DT = datetime.fromtimestamp(WINDOW_TS, UTC)
 WINDOW_DT_LATER = datetime.fromtimestamp(WINDOW_TS_LATER, UTC)
 
-# _source_file values, relative to the raw archive root
 SOURCE_FILE = "2026-01-01/2026-01-01T00:05:00Z.json"
 SOURCE_FILE_LATER = "2026-01-01/2026-01-01T01:05:00Z.json"
 MAPPING_SOURCE_FILE = "mapping/2026-01-01T00:05:00Z.json"
-
-# --- Raw API responses (/1h) ---
 
 # Clean data
 DATA1 = {
@@ -95,8 +92,6 @@ DATA6 = {
   }
 }
 
-# --- Raw API response (/mapping) ---
-
 MAPPING = [
   {
     "examine": "test1",
@@ -133,8 +128,6 @@ MAPPING2 = [
     "name": "test3"
   }
 ]
-
-# --- raw.items rows ---
 
 ITEMS = [
   {
@@ -207,8 +200,6 @@ ITEMS3 = [
   }
 ]
 
-# --- raw.prices_1h rows ---
-
 # Expected flatten_prices(DATA1)
 PRICES = [
   {
@@ -231,7 +222,6 @@ PRICES = [
   }
 ]
 
-# Rows relative to now, for the 7-day graph query
 PRICES2 = [
   {
     "item_id": 1,

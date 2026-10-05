@@ -3,7 +3,8 @@ import os, sys
 import psycopg
 from gem.analysis.queries import run_query
 from gem.analysis.format import print_table
-from gem.ingestion.fetch_latest import fetch_latest
+from gem.ingestion.fetch_1h import fetch_1h
+from gem.ingestion.fetch_mapping import fetch_mapping
 from gem.analysis.graph import graph
 from gem.backfill import backfill
 
@@ -41,7 +42,8 @@ def main():
           return 1
 
       case "update":
-          fetch_latest()
+          fetch_1h()
+          fetch_mapping()
           backfill()
 
       case "graph":
@@ -63,4 +65,3 @@ def main():
 
 if __name__=="__main__":
   sys.exit(main())
-
