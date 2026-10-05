@@ -18,4 +18,3 @@ def graph(item_name):
       low_prices,
       volumes
       )
-

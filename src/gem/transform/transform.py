@@ -54,4 +54,3 @@ def flatten_items(data, source_file):
       "_source_file": source_file
     })
   return items
-

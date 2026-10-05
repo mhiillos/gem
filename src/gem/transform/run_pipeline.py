@@ -26,4 +26,3 @@ if __name__ == "__main__":
   parser.add_argument("file_path", type=str)
   args = parser.parse_args()
   run_pipeline(args.file_path)
-

@@ -24,4 +24,3 @@ def load_items(data):
       cur.execute("TRUNCATE raw.items")
       cur.executemany(sql_items, data)
     conn.commit()
-

@@ -22,4 +22,3 @@ def test_item_graph_7d_data_at_correct_spot(test_db):
 
   assert lows[-3] == 5000
   assert not highs[-3]
-

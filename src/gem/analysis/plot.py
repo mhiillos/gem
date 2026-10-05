@@ -74,4 +74,3 @@ def plot(item_name, timestamps, high_prices, low_prices, volumes):
   ax2.legend()
 
   plt.show()
-
