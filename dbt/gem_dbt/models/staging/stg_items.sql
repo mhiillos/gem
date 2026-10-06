@@ -1,16 +1,23 @@
 with source as (
 
-  select * from {{ source('gem','dim_item') }}
+  select * from {{ source('gem','items') }}
 
 ),
 
 renamed as (
 
   select
-    item_id,
+    id as item_id,
+    examine,
+    members as is_members,
+    lowalch as low_alch,
+    buy_limit,
+    value,
+    highalch as high_alch,
+    icon,
     name,
-    high_alch as ha_value,
-    buy_limit
+    _loaded_at,
+    _source_file
 
   from source
 

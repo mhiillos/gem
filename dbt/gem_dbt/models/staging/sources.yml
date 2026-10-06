@@ -1,6 +1,22 @@
 sources:
   - name: gem
-    schema: public
+    schema: raw
     tables:
-      - name: fact_item
-      - name: dim_item
+      - name: prices_1h
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after:
+            count: 2
+            period: hour
+          error_after:
+            count: 4
+            period: hour
+      - name: items
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after:
+            count: 2
+            period: hour
+          error_after:
+            count: 4
+            period: hour

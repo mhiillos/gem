@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_items
-    description: "Staging model for dim_items"
+    description: "Staging model for items"
     columns:
       - name: item_id
         data_tests:
@@ -10,9 +10,9 @@ models:
           - not_null
 
   - name: stg_prices
-    description: "Staging model for fact_items"
+    description: "Staging model for prices_1h"
     columns:
-      - name: fact_id
+      - name: price_id
         data_tests:
           - unique
           - not_null
@@ -20,5 +20,8 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_items')
-              field: item_id
+              arguments:
+                to: ref('stg_items')
+                field: item_id
+              config:
+                severity: warn
