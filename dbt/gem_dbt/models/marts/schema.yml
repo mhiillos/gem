@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: dim_items
+    description: "Dim table for items metadata"
+    columns:
+      - name: item_id
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        data_tests:
+          - not_null
