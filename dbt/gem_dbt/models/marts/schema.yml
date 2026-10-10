@@ -11,3 +11,23 @@ models:
       - name: name
         data_tests:
           - not_null
+  - name: fct_prices
+    description: "Fact table, one row per item per hour"
+    columns:
+      - name: price_id
+        data_tests:
+          - unique
+          - not_null
+      - name: item_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_items')
+                field: item_id
+              config:
+                severity: warn
+      - name: high_price
+        description: "Average instant-buy price"
+      - name: low_price
+        description: "Average instant-sell price"
