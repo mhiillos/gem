@@ -31,3 +31,19 @@ models:
         description: "Average instant-buy price"
       - name: low_price
         description: "Average instant-sell price"
+  - name: fct_prices_daily
+    description: "Fact table, one row per item per UTC day, with day-over-day changes"
+    columns:
+      - name: price_day_id
+        data_tests:
+          - unique
+          - not_null
+      - name: item_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_items')
+                field: item_id
+              config:
+                severity: warn
