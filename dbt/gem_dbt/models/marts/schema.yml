@@ -37,7 +37,6 @@ models:
         description: "Low price average over volume of past 24h window"
       - name: total_volume_24h
         description: "Total volume traded over past 24h window"
-
   - name: fct_prices_daily
     description: "Fact table, one row per item per UTC day, with day-over-day changes"
     columns:
@@ -54,3 +53,20 @@ models:
                 field: item_id
               config:
                 severity: warn
+  - name: mart_items_latest
+    description: "One row per item in dim_items"
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('dim_items')
+    columns:
+      - name: item_id
+        data_tests:
+          - unique
+          - not_null
+      - name: high_price_at
+        description: "the hour of the latest recorded high_price where the item was traded"
+      - name: low_price_at
+        description: "the hour of the latest recorded low_price where the item was traded"
+      - name: spread
+        description: "Difference of high_price and low_price, null when the latest prices are not from the same hour"
