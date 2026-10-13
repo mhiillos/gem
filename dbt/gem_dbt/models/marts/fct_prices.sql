@@ -14,6 +14,8 @@ final as (
     high_price_volume,
     low_price,
     low_price_volume,
+    (coalesce(high_price * high_price_volume, 0) + coalesce(low_price * low_price_volume, 0))
+      / nullif(high_price_volume + low_price_volume, 0) as mean_price,
     high_price_volume + low_price_volume as total_volume,
     high_price - low_price as spread,
     ((high_price - low_price) / low_price) * 100 as spread_pct,

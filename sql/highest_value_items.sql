@@ -1,29 +1,15 @@
--- Gets the 50 highest value items, descending
-WITH latest_high AS (
-  SELECT DISTINCT ON (item_id)
-    item_id,
-    price AS high_price
-  FROM fact_item
-  WHERE type = 'high'
-  ORDER BY item_id, timestamp DESC
-),
-
-latest_low AS (
-  SELECT DISTINCT ON (item_id)
-    item_id,
-    price AS low_price
-  FROM fact_item
-  WHERE type = 'low'
-  ORDER BY item_id, timestamp DESC
-)
-
-SELECT
-  d.name,
-  (h.high_price + l.low_price) / 2 AS mean_price
-FROM dim_item d
-JOIN latest_high h
-  ON d.item_id = h.item_id
-JOIN latest_low l
-  ON d.item_id = l.item_id
-ORDER BY mean_price DESC
-LIMIT 50;
+-- 50 highest value items by volume-weighted mean price on the newest complete UTC day
+select
+  d.price_date,
+  d.item_id,
+  i.name,
+  d.mean_price,
+  d.high_price,
+  d.low_price,
+  d.total_volume as day_volume
+from dev_marts.fct_prices_daily as d
+join dev_marts.dim_items as i
+  on i.item_id = d.item_id
+where d.price_date = (select max(price_date) from dev_marts.fct_prices_daily)
+order by d.mean_price desc
+limit 50;

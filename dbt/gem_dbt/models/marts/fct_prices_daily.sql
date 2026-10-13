@@ -13,6 +13,7 @@ daily as (
     sum(high_price_volume) as high_price_volume,
     sum(low_price * low_price_volume) / nullif(sum(low_price_volume), 0) as low_price,
     sum(low_price_volume) as low_price_volume,
+    sum(mean_price * total_volume) / nullif(sum(total_volume), 0) as mean_price,
     sum(total_volume) as total_volume,
     count(*) as hours_traded
 
@@ -76,6 +77,7 @@ diffs as (
     c.high_price_volume,
     c.low_price,
     c.low_price_volume,
+    c.mean_price,
     c.total_volume,
     c.hours_traded,
 
