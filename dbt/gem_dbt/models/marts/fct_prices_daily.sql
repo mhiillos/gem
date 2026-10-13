@@ -51,18 +51,58 @@ compared as (
 
 ),
 
+weekly as (
+
+  select
+    c.item_id,
+    c.price_date,
+    w.high_price as high_price_1w,
+    w.low_price as low_price_1w,
+    w.total_volume as total_volume_1w
+
+  from compared as c
+  left join daily as w
+    on w.item_id = c.item_id
+    and w.price_date = c.price_date - 7
+
+),
+
 diffs as (
 
   select
-    *,
-    high_price - prev_high_price as high_price_change,
-    low_price - prev_low_price as low_price_change,
-    total_volume - prev_total_volume as total_volume_change,
-    (high_price - prev_high_price) / prev_high_price * 100 as high_price_change_pct,
-    (low_price - prev_low_price) / prev_low_price * 100 as low_price_change_pct,
-    (total_volume - prev_total_volume) / nullif(prev_total_volume, 0) * 100 as total_volume_change_pct
+    c.item_id,
+    c.price_date,
+    c.high_price,
+    c.high_price_volume,
+    c.low_price,
+    c.low_price_volume,
+    c.total_volume,
+    c.hours_traded,
 
-  from compared
+    c.prev_high_price as high_price_prev_day,
+    c.prev_low_price as low_price_prev_day,
+    c.prev_total_volume as total_volume_prev_day,
+    c.high_price - c.prev_high_price as high_price_change_dod,
+    c.low_price - c.prev_low_price as low_price_change_dod,
+    c.total_volume - c.prev_total_volume as total_volume_change_dod,
+    (c.high_price - c.prev_high_price) / c.prev_high_price * 100 as high_price_change_pct_dod,
+    (c.low_price - c.prev_low_price) / c.prev_low_price * 100 as low_price_change_pct_dod,
+    (c.total_volume - c.prev_total_volume) / nullif(c.prev_total_volume, 0) * 100 as total_volume_change_pct_dod,
+
+    w.high_price_1w as high_price_prev_week,
+    w.low_price_1w as low_price_prev_week,
+    w.total_volume_1w as total_volume_prev_week,
+    c.high_price - w.high_price_1w as high_price_change_wow,
+    c.low_price - w.low_price_1w as low_price_change_wow,
+    c.total_volume - w.total_volume_1w as total_volume_change_wow,
+    (c.high_price - w.high_price_1w) / w.high_price_1w * 100 as high_price_change_pct_wow,
+    (c.low_price - w.low_price_1w) / w.low_price_1w * 100 as low_price_change_pct_wow,
+    (c.total_volume - w.total_volume_1w) / nullif(w.total_volume_1w, 0) * 100 as total_volume_change_pct_wow
+
+  from compared as c
+  left join weekly as w
+    on c.item_id = w.item_id
+    and c.price_date = w.price_date
 
 ),
 
