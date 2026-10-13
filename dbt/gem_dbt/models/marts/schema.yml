@@ -31,6 +31,13 @@ models:
         description: "Average instant-buy price"
       - name: low_price
         description: "Average instant-sell price"
+      - name: high_price_avg_24h
+        description: "High price average over volume of past 24h window"
+      - name: low_price_avg_24h
+        description: "Low price average over volume of past 24h window"
+      - name: total_volume_24h
+        description: "Total volume traded over past 24h window"
+
   - name: fct_prices_daily
     description: "Fact table, one row per item per UTC day, with day-over-day changes"
     columns:
