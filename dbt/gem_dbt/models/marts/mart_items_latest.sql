@@ -64,6 +64,33 @@ latest_low as (
 
 ),
 
+ranked_mean as (
+
+  select
+    *,
+    row_number() over(
+      partition by item_id
+      order by
+        window_timestamp desc
+    ) as rn
+
+  from source
+  where mean_price is not null
+
+),
+
+latest_mean as (
+
+  select
+    item_id,
+    mean_price,
+    window_timestamp as mean_price_at
+
+  from ranked_mean
+  where rn = 1
+
+),
+
 final as (
 
   select
@@ -78,11 +105,14 @@ final as (
     low_price_at,
     case
       when high_price_at = low_price_at then (high_price - low_price)
-    end as spread
+    end as spread,
+    mean_price,
+    mean_price_at
 
   from items
   left join latest_high on latest_high.item_id = items.item_id
   left join latest_low on latest_low.item_id = items.item_id
+  left join latest_mean on latest_mean.item_id = items.item_id
 
 )
 
