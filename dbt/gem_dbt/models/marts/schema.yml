@@ -37,6 +37,8 @@ models:
         description: "Low price average over volume of past 24h window"
       - name: total_volume_24h
         description: "Total volume traded over past 24h window"
+      - name: mean_price
+        description: "Volume-weighted mean price"
   - name: fct_prices_daily
     description: "Fact table, one row per item per UTC day, with day-over-day changes"
     columns:
