@@ -42,6 +42,12 @@ compared as (
 
     case
       when (lag(price_date) over w = price_date - 1)
+        then lag(mean_price) over w
+        else null
+    end as prev_mean_price,
+
+    case
+      when (lag(price_date) over w = price_date - 1)
         then lag(total_volume) over w
         else null
     end as prev_total_volume
@@ -59,6 +65,7 @@ weekly as (
     c.price_date,
     w.high_price as high_price_1w,
     w.low_price as low_price_1w,
+    w.mean_price as mean_price_1w,
     w.total_volume as total_volume_1w
 
   from compared as c
@@ -83,22 +90,28 @@ diffs as (
 
     c.prev_high_price as high_price_prev_day,
     c.prev_low_price as low_price_prev_day,
+    c.prev_mean_price as mean_price_prev_day,
     c.prev_total_volume as total_volume_prev_day,
     c.high_price - c.prev_high_price as high_price_change_dod,
     c.low_price - c.prev_low_price as low_price_change_dod,
+    c.mean_price - c.prev_mean_price as mean_price_change_dod,
     c.total_volume - c.prev_total_volume as total_volume_change_dod,
     (c.high_price - c.prev_high_price) / c.prev_high_price * 100 as high_price_change_pct_dod,
     (c.low_price - c.prev_low_price) / c.prev_low_price * 100 as low_price_change_pct_dod,
+    (c.mean_price - c.prev_mean_price) / c.prev_mean_price * 100 as mean_price_change_pct_dod,
     (c.total_volume - c.prev_total_volume) / nullif(c.prev_total_volume, 0) * 100 as total_volume_change_pct_dod,
 
     w.high_price_1w as high_price_prev_week,
     w.low_price_1w as low_price_prev_week,
+    w.mean_price_1w as mean_price_prev_week,
     w.total_volume_1w as total_volume_prev_week,
     c.high_price - w.high_price_1w as high_price_change_wow,
     c.low_price - w.low_price_1w as low_price_change_wow,
+    c.mean_price - w.mean_price_1w as mean_price_change_wow,
     c.total_volume - w.total_volume_1w as total_volume_change_wow,
     (c.high_price - w.high_price_1w) / w.high_price_1w * 100 as high_price_change_pct_wow,
     (c.low_price - w.low_price_1w) / w.low_price_1w * 100 as low_price_change_pct_wow,
+    (c.mean_price - w.mean_price_1w) / w.mean_price_1w * 100 as mean_price_change_pct_wow,
     (c.total_volume - w.total_volume_1w) / nullif(w.total_volume_1w, 0) * 100 as total_volume_change_pct_wow
 
   from compared as c
