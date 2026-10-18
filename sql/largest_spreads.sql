@@ -1,31 +1,26 @@
--- Returns top items that have the largest difference between high and low price
-WITH latest_high AS (
-  SELECT DISTINCT ON (item_id)
-    item_id,
-    price AS high_price
-  FROM fact_item
-  WHERE type = 'high'
-  ORDER BY item_id, timestamp DESC
-),
+-- Calculates and filters spread data from daily data.
+-- Filtering is done by using window pairs of low price and total volume
+select
+  i.name,
+  d.low_price,
+  d.high_price,
+  d.spread,
+  d.spread_pct,
+  d.total_volume
 
-latest_low AS (
-  SELECT DISTINCT ON (item_id)
-    item_id,
-    price AS low_price
-  FROM fact_item
-  WHERE type = 'low'
-  ORDER BY item_id, timestamp DESC
-)
-
-SELECT
-  d.name,
-  l.low_price,
-  h.high_price,
-  (h.high_price - l.low_price) AS diff
-FROM dim_item d
-JOIN latest_high h
-  ON d.item_id = h.item_id
-JOIN latest_low l
-  ON d.item_id = l.item_id
-ORDER BY diff DESC
-LIMIT 50;
+from dev_marts.fct_prices_daily as d
+join dev_marts.dim_items as i
+  on i.item_id = d.item_id
+where d.price_date = (select max(price_date) from dev_marts.fct_prices_daily)
+and d.hours_traded > 12
+and d.low_price >= 100
+and d.total_volume >= case
+  when d.low_price < 5000 then 25000
+  when d.low_price < 20000 then 5000
+  when d.low_price < 100000 then 500
+  when (d.low_price < 1000000 and d.spread_pct > 50) then 10
+  when d.low_price < 1000000 then 100
+  else 5
+end
+order by d.spread_pct desc nulls last
+limit 50;

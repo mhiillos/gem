@@ -85,6 +85,8 @@ diffs as (
     c.low_price,
     c.low_price_volume,
     c.mean_price,
+    c.high_price - c.low_price as spread,
+    (c.high_price - c.low_price) / c.low_price * 100 as spread_pct,
     c.total_volume,
     c.hours_traded,
 
