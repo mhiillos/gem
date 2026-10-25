@@ -1,1 +1,0 @@
--- Calculates the volatility of prices, and outputs the items with highest volatility [STDDEV(price)]

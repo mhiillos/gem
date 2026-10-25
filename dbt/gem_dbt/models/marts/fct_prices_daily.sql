@@ -123,13 +123,32 @@ diffs as (
 
 ),
 
+volatility as (
+
+  select
+    *,
+    -- Calculate standard deviation of daily % changes -> typical % price changes for item per day
+    case
+      when count(mean_price_change_pct_dod) over w_7d >= 7
+        then stddev_samp(mean_price_change_pct_dod) over w_7d
+    end as mean_price_volatility_7d
+
+  from diffs
+  window w_7d as (
+    partition by item_id
+    order by price_date
+    range between interval '6 days' preceding and current row
+  )
+
+),
+
 final as (
 
   select
     {{ dbt_utils.generate_surrogate_key(['item_id', 'price_date']) }} as price_day_id,
     *
 
-  from diffs
+  from volatility
 
 )
 
