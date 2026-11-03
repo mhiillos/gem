@@ -5,16 +5,17 @@ import numpy as np
 def graph(item_name):
   rows, _ = run_query("item_graph_7d", (item_name,))
 
-
   timestamps = np.array([x[0] for x in rows])
   high_prices = np.array([x[1] for x in rows], dtype=float)
   low_prices = np.array([x[2] for x in rows], dtype=float)
-  volumes = np.array([x[3] for x in rows], dtype=float)
+  high_volume = np.array([x[3] for x in rows], dtype=float)
+  low_volume = np.array([x[4] for x in rows], dtype=float)
 
   plot(
       item_name,
       timestamps,
       high_prices,
       low_prices,
-      volumes
+      high_volume,
+      low_volume
       )

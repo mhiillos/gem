@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 
-def plot(item_name, timestamps, high_prices, low_prices, volumes):
+def plot(item_name, timestamps, high_prices, low_prices, high_volume, low_volume):
   _, (ax1, ax2) = plt.subplots(
     2,
     1,
@@ -24,7 +24,7 @@ def plot(item_name, timestamps, high_prices, low_prices, volumes):
   ax1.plot(
     mid[high_mask],
     high_prices[high_mask],
-    "o-",
+    "-",
     markersize=5,
     linewidth=1.5,
     label="High"
@@ -33,7 +33,7 @@ def plot(item_name, timestamps, high_prices, low_prices, volumes):
   ax1.plot(
     mid[low_mask],
     low_prices[low_mask],
-    "o-",
+    "-",
     markersize=5,
     linewidth=1.5,
     label="Low"
@@ -59,16 +59,8 @@ def plot(item_name, timestamps, high_prices, low_prices, volumes):
   highest = np.nanmax([low_prices, high_prices])
   ax1.set_ylim(np.nanmin(lowest) * 0.99, np.nanmax(highest) * 1.01)
 
-  # Volumes plot
-  # Different color for increased/decreased volumes
-  colors = ["tab:blue"]
-  for i in range(1, len(volumes)):
-    if volumes[i - 1] > volumes[i]:
-      colors.append("tab:orange")
-    else:
-      colors.append("tab:blue")
-
-  ax2.bar(mid, volumes, color=colors, width=(.8/24), align="edge", label="Volume")
+  ax2.bar(mid, low_volume, color="tab:orange", width=(.8/24), align="edge", label="Sell Volume")
+  ax2.bar(mid, high_volume, bottom=low_volume, color="tab:blue", width=(.8/24), align="edge", label="Buy Volume")
   ax2.set_xlabel("Time")
   ax2.set_ylabel("Volume")
   ax2.legend()
