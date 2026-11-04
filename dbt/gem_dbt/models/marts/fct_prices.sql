@@ -1,3 +1,11 @@
+{{
+  config(
+    indexes = [
+      {'columns': ['item_id', 'window_timestamp'], 'unique': True}
+    ]
+  )
+}}
+
 with source as (
 
   select * from {{ ref('stg_prices') }}
