@@ -6,7 +6,6 @@ select
   f.mean_price_change_dod,
   f.mean_price_change_pct_dod,
   f.total_volume
-
 from dev_marts.fct_prices_daily f
 left join dev_marts.dim_items d
   on d.item_id = f.item_id
