@@ -1,14 +1,34 @@
 {{
   config(
+    materialized = 'incremental',
+    unique_key = 'price_id',
+    incremental_strategy = 'delete+insert',
     indexes = [
       {'columns': ['item_id', 'window_timestamp'], 'unique': True}
     ]
   )
 }}
 
-with source as (
+with
+
+-- Calculate the rolling 24h window for past 2 days.
+{% if is_incremental() %}
+bounds as (
+
+  select
+    max(window_timestamp) - INTERVAL '48 hour' as write_from,
+    max(window_timestamp) - INTERVAL '48 hour' - INTERVAL '23 hour' as read_from
+  from {{ this }}
+
+),
+{% endif %}
+
+source as (
 
   select * from {{ ref('stg_prices') }}
+  {% if is_incremental() %}
+  where window_timestamp >= (select read_from from bounds)
+  {% endif %}
 
 ),
 
@@ -47,3 +67,6 @@ final as (
 )
 
 select * from final
+{% if is_incremental() %}
+where window_timestamp >= (select write_from from bounds)
+{% endif %}
