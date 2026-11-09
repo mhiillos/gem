@@ -28,3 +28,13 @@ models:
                 field: item_id
               config:
                 severity: warn
+      - name: high_price
+        data_tests:
+          - price_null_when_no_volume:
+              arguments:
+                volume_column: high_price_volume
+      - name: low_price
+        data_tests:
+          - price_null_when_no_volume:
+              arguments:
+                volume_column: low_price_volume
