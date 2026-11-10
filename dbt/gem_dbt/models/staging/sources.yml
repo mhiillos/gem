@@ -1,8 +1,10 @@
 sources:
   - name: gem
+    description: "Raw tables loaded by Python from the `data/raw/` archive"
     schema: raw
     tables:
       - name: prices_1h
+        description: "One row per item per `/1h` window"
         loaded_at_field: _loaded_at
         freshness:
           warn_after:
@@ -11,7 +13,13 @@ sources:
           error_after:
             count: 4
             period: hour
+        columns:
+          - name: _loaded_at
+            description: "{{ doc('loaded_at') }}"
+          - name: _source_file
+            description: "{{ doc('source_file') }}"
       - name: items
+        description: "Current `/mapping`, reloaded every run"
         loaded_at_field: _loaded_at
         freshness:
           warn_after:
@@ -20,3 +28,8 @@ sources:
           error_after:
             count: 4
             period: hour
+        columns:
+          - name: _loaded_at
+            description: "{{ doc('loaded_at') }}"
+          - name: _source_file
+            description: "{{ doc('source_file') }}"
