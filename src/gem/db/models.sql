@@ -1,27 +1,28 @@
--- Dimension table: Single item
-CREATE TABLE IF NOT EXISTS dim_item (
-  item_id INT PRIMARY KEY,
-  name TEXT NOT NULL,
-  high_alch INT NOT NULL,
-  buy_limit INT NOT NULL
+CREATE SCHEMA IF NOT EXISTS raw;
+
+CREATE TABLE IF NOT EXISTS raw.prices_1h (
+  item_id INT NOT NULL,
+  window_timestamp TIMESTAMPTZ NOT NULL,
+  avg_high_price NUMERIC,
+  high_price_volume BIGINT,
+  avg_low_price NUMERIC,
+  low_price_volume BIGINT,
+  _loaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  _source_file TEXT,
+
+  UNIQUE (item_id, window_timestamp)
 );
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'item_type') THEN
-    CREATE TYPE item_type AS ENUM ('high', 'low');
-  END IF;
-END
-$$;
-
--- Fact table: information of an item's price at a specific point in time
-CREATE TABLE IF NOT EXISTS fact_item (
-  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  item_id INT NOT NULL,
-  price BIGINT NOT NULL,
-  timestamp TIMESTAMPTZ NOT NULL,
-  type item_type NOT NULL,
-
-  FOREIGN KEY (item_id) REFERENCES dim_item(item_id) ON DELETE CASCADE,
-  UNIQUE(item_id, timestamp, type)
+CREATE TABLE IF NOT EXISTS raw.items (
+  id INT PRIMARY KEY,
+  examine VARCHAR,
+  members BOOLEAN,
+  lowalch BIGINT,
+  buy_limit INT,
+  value BIGINT,
+  highalch BIGINT,
+  icon VARCHAR,
+  name VARCHAR,
+  _loaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  _source_file TEXT
 );

@@ -1,0 +1,235 @@
+version: 2
+
+models:
+  - name: dim_items
+    description: "One row per item, current `/mapping` only."
+    columns:
+      - name: item_id
+        description: "{{ doc('item_id') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "In-game item name"
+        data_tests:
+          - not_null
+      - name: examine
+        description: "In-game examine text"
+      - name: is_members
+        description: "True when the item is members-only"
+      - name: buy_limit
+        description: "GE buy limit per 4 hours"
+      - name: high_alch
+        description: "High Alchemy value in coins"
+      - name: icon_url
+        description: "Wiki image URL"
+      - name: _loaded_at
+        description: "{{ doc('loaded_at') }}"
+      - name: _source_file
+        description: "{{ doc('source_file') }}"
+
+  - name: fct_prices
+    description: "One row per item per hour."
+    columns:
+      - name: price_id
+        description: "{{ doc('price_id') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: item_id
+        description: "{{ doc('item_id') }}"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_items')
+                field: item_id
+              config:
+                severity: warn
+      - name: window_timestamp
+        description: "{{ doc('window_timestamp') }}"
+      - name: high_price
+        description: "{{ doc('high_price') }}"
+      - name: high_price_volume
+        description: "{{ doc('high_price_volume') }}"
+      - name: low_price
+        description: "{{ doc('low_price') }}"
+      - name: low_price_volume
+        description: "{{ doc('low_price_volume') }}"
+      - name: mean_price
+        description: "{{ doc('mean_price') }}"
+      - name: total_volume
+        description: "{{ doc('total_volume') }}"
+      - name: spread
+        description: "{{ doc('spread') }}"
+      - name: spread_pct
+        description: "{{ doc('spread_pct') }}"
+      - name: high_price_avg_24h
+        description: "Average instant-buy price over the past 24 hours"
+      - name: low_price_avg_24h
+        description: "Average instant-sell price over the past 24 hours"
+      - name: total_volume_24h
+        description: "Items traded over the past 24 hours"
+      - name: _loaded_at
+        description: "{{ doc('loaded_at') }}"
+      - name: _source_file
+        description: "{{ doc('source_file') }}"
+
+  - name: fct_prices_daily
+    description: "One row per item per UTC day, with day-over-day and week-over-week changes. Excludes the current day."
+    columns:
+      - name: price_day_id
+        description: "Surrogate key of `item_id` and `price_date`"
+        data_tests:
+          - unique
+          - not_null
+      - name: item_id
+        description: "{{ doc('item_id') }}"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_items')
+                field: item_id
+              config:
+                severity: warn
+      - name: price_date
+        description: "UTC calendar day"
+      - name: high_price
+        description: "{{ doc('high_price') }}"
+      - name: high_price_volume
+        description: "{{ doc('high_price_volume') }}"
+      - name: low_price
+        description: "{{ doc('low_price') }}"
+      - name: low_price_volume
+        description: "{{ doc('low_price_volume') }}"
+      - name: mean_price
+        description: "{{ doc('mean_price') }}"
+      - name: total_volume
+        description: "{{ doc('total_volume') }}"
+      - name: spread
+        description: "{{ doc('spread') }}"
+      - name: spread_pct
+        description: "{{ doc('spread_pct') }}"
+      - name: hours_traded
+        description: "Hours in the day the item traded"
+
+      - name: high_price_prev_day
+        description: "{{ doc('prev_day') }}"
+      - name: low_price_prev_day
+        description: "{{ doc('prev_day') }}"
+      - name: mean_price_prev_day
+        description: "{{ doc('prev_day') }}"
+      - name: total_volume_prev_day
+        description: "{{ doc('prev_day') }}"
+      - name: high_price_change_dod
+        description: "{{ doc('change_dod') }}"
+      - name: low_price_change_dod
+        description: "{{ doc('change_dod') }}"
+      - name: mean_price_change_dod
+        description: "{{ doc('change_dod') }}"
+      - name: total_volume_change_dod
+        description: "{{ doc('change_dod') }}"
+      - name: high_price_change_pct_dod
+        description: "{{ doc('change_pct_dod') }}"
+      - name: low_price_change_pct_dod
+        description: "{{ doc('change_pct_dod') }}"
+      - name: mean_price_change_pct_dod
+        description: "{{ doc('change_pct_dod') }}"
+      - name: total_volume_change_pct_dod
+        description: "{{ doc('change_pct_dod') }}"
+
+      - name: high_price_prev_week
+        description: "{{ doc('prev_week') }}"
+      - name: low_price_prev_week
+        description: "{{ doc('prev_week') }}"
+      - name: mean_price_prev_week
+        description: "{{ doc('prev_week') }}"
+      - name: total_volume_prev_week
+        description: "{{ doc('prev_week') }}"
+      - name: high_price_change_wow
+        description: "{{ doc('change_wow') }}"
+      - name: low_price_change_wow
+        description: "{{ doc('change_wow') }}"
+      - name: mean_price_change_wow
+        description: "{{ doc('change_wow') }}"
+      - name: total_volume_change_wow
+        description: "{{ doc('change_wow') }}"
+      - name: high_price_change_pct_wow
+        description: "{{ doc('change_pct_wow') }}"
+      - name: low_price_change_pct_wow
+        description: "{{ doc('change_pct_wow') }}"
+      - name: mean_price_change_pct_wow
+        description: "{{ doc('change_pct_wow') }}"
+      - name: total_volume_change_pct_wow
+        description: "{{ doc('change_pct_wow') }}"
+
+      - name: mean_price_volatility_7d
+        description: "Typical daily % price move over the past 7 days. NULL with under 7 days of data"
+
+  - name: mart_items_latest
+    description: "One row per item with its newest prices, 24h volume, and alch and flip profits."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('dim_items')
+    columns:
+      - name: item_id
+        description: "{{ doc('item_id') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "In-game item name"
+      - name: icon_url
+        description: "Wiki image URL"
+      - name: high_alch
+        description: "High Alchemy value in coins"
+      - name: buy_limit
+        description: "GE buy limit per 4 hours"
+      - name: high_price
+        description: "Newest instant-buy price"
+      - name: high_price_at
+        description: "Hour of the newest instant-buy price"
+      - name: high_price_volume
+        description: "Items traded at the instant-buy price in that hour"
+      - name: low_price
+        description: "Newest instant-sell price"
+      - name: low_price_at
+        description: "Hour of the newest instant-sell price"
+      - name: low_price_volume
+        description: "Items traded at the instant-sell price in that hour"
+      - name: spread
+        description: "`high_price - low_price`. NULL unless both prices are from the same hour"
+      - name: mean_price
+        description: "Newest volume-weighted average price"
+      - name: mean_price_at
+        description: "Hour of the newest mean price"
+      - name: total_volume_24h
+        description: "Items traded in the 24 hours up to the newest loaded hour"
+      - name: alch_profit
+        description: "High Alchemy value minus buy price and a nature rune. No GE tax"
+      - name: alch_roi_pct
+        description: "Alch profit as a % of buy price plus the nature rune"
+      - name: flip_margin
+        description: "Sell price minus 2% GE tax (max 5M) minus buy price. NULL unless both prices are from the same hour"
+      - name: flip_profit_per_limit
+        description: "Flip margin times the buy limit"
+      - name: flip_roi_pct
+        description: "Flip margin as a % of buy price"
+
+  - name: mart_data_coverage
+    description: "One row: expected vs loaded hours over all history. Counts hours, not items."
+    columns:
+      - name: first_window
+        description: "Oldest `window_timestamp` in `fct_prices`"
+      - name: last_window
+        description: "Newest `window_timestamp` in `fct_prices`"
+      - name: expected_hours
+        description: "Hours from first to last window"
+      - name: loaded_hours
+        description: "Hours with any price data"
+      - name: missing_hours
+        description: "Expected minus loaded hours"
+      - name: coverage_pct
+        description: "Loaded hours as a % of expected hours"

@@ -13,4 +13,3 @@ def run_query(query, params=None):
     with conn.cursor() as cur:
       cur.execute(sql, params)
       return cur.fetchall(), [desc[0] for desc in cur.description]
-

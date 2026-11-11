@@ -1,53 +1,56 @@
 from datetime import datetime, UTC
-from typing import TypedDict, Literal
+from decimal import Decimal
+from typing import TypedDict
 
-class DimItem(TypedDict):
+class PriceRow(TypedDict):
   item_id: int
-  name: str
-  high_alch: int
+  window_timestamp: datetime
+  avg_high_price: Decimal | None
+  high_price_volume: int | None
+  avg_low_price: Decimal | None
+  low_price_volume: int | None
+  _source_file: str
+
+class ItemRow(TypedDict):
+  id: int
+  examine: str
+  members: bool
+  lowalch: int
   buy_limit: int
+  value: int
+  highalch: int
+  icon: str
+  name: str
+  _source_file: str
 
-ItemType = Literal["high", "low"]
-
-class FactItem(TypedDict):
-  item_id: int
-  price: int
-  timestamp: datetime
-  type: ItemType
-
-# Transform input JSON object into dimension table and fact table entries
-def transform(data, mapping):
-  dim_entries: list[DimItem] = []
-  fact_entries: list[FactItem] = []
-
-  for item in mapping:
-    dim_entries.append({
-      "item_id": int(item["id"]),
-      "name": item["name"],
-      "high_alch": int(item.get("highalch", 0)),
-      "buy_limit": int(item.get("limit", 0))
-    })
-
+def flatten_prices(data, source_file):
+  prices: list[PriceRow] = []
+  window_timestamp = datetime.fromtimestamp(data["timestamp"], UTC)
   for k, v in data["data"].items():
-    # Add high and low data separately
-    if v.get("high") is not None:
-      fact_entries.append({
-        "item_id": int(k),
-        "price": int(v.get("high", 0)),
-        "timestamp": datetime.fromtimestamp(v["highTime"], UTC),
-        "type": "high"
-      })
-    if v.get("low") is not None:
-      fact_entries.append({
-        "item_id": int(k),
-        "price": int(v.get("low", 0)),
-        "timestamp": datetime.fromtimestamp(v["lowTime"], UTC),
-        "type": "low"
-      })
+    prices.append({
+      "item_id": int(k),
+      "window_timestamp": window_timestamp,
+      "avg_high_price": v.get("avgHighPrice"),
+      "high_price_volume": v.get("highPriceVolume"),
+      "avg_low_price": v.get("avgLowPrice"),
+      "low_price_volume": v.get("lowPriceVolume"),
+      "_source_file": source_file
+    })
+  return prices
 
-  # Filter out fact_entries that do not exist in dim_entries
-  dim_ids = {item["item_id"] for item in dim_entries}
-  fact_entries = [f for f in fact_entries if f["item_id"] in dim_ids]
-
-  return (dim_entries, fact_entries)
-
+def flatten_items(data, source_file):
+  items: list[ItemRow] = []
+  for item in data:
+    items.append({
+      "id": item["id"],
+      "examine": item.get("examine"),
+      "members": item.get("members"),
+      "lowalch": item.get("lowalch"),
+      "buy_limit": item.get("limit"),
+      "value": item.get("value"),
+      "highalch": item.get("highalch"),
+      "icon": item.get("icon"),
+      "name": item.get("name"),
+      "_source_file": source_file
+    })
+  return items

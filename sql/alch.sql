@@ -1,25 +1,16 @@
--- Checks alch value against current low value for potential profit
-WITH latest_low AS (
-  SELECT DISTINCT ON (item_id)
-    item_id,
-    price AS low_price
-  FROM fact_item
-  WHERE type = 'low'
-  ORDER BY item_id, timestamp DESC
-)
-
-SELECT
-  d.name,
-  d.high_alch,
-  l.low_price,
-  d.buy_limit,
-  d.high_alch - l.low_price AS potential_profit,
-  (d.high_alch - l.low_price) * 100.0 / l.low_price AS roi
-FROM dim_item d
-JOIN latest_low l
-  ON d.item_id = l.item_id
-WHERE d.buy_limit > 8
-AND (d.high_alch - l.low_price) * 100.0 / l.low_price < 1000
-ORDER BY potential_profit DESC
-LIMIT 50;
-
+-- Checks alch value against current instant buy for potential profit, prioritizing high ROI items
+select
+  name,
+  high_alch,
+  high_price,
+  high_price_at,
+  alch_profit,
+  buy_limit,
+  total_volume_24h,
+  alch_roi_pct
+from dev_marts.mart_items_latest
+where buy_limit >= 1000
+and high_price_at >= (now() - interval '2 hour')
+and total_volume_24h > 20000
+order by alch_roi_pct desc nulls last
+limit 50;

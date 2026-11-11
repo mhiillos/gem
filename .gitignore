@@ -4,3 +4,4 @@ data/
 *.log
 TODO.md
 src/gem.egg-info/
+.env

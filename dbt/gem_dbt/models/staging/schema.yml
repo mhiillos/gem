@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: stg_items
+    description: "Items from the current `/mapping`, renamed."
+    columns:
+      - name: item_id
+        description: "{{ doc('item_id') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "In-game item name"
+        data_tests:
+          - not_null
+      - name: examine
+        description: "In-game examine text"
+      - name: is_members
+        description: "True when the item is members-only"
+      - name: buy_limit
+        description: "GE buy limit per 4 hours"
+      - name: value
+        description: "Store value in coins"
+      - name: low_alch
+        description: "Low Alchemy value in coins"
+      - name: high_alch
+        description: "High Alchemy value in coins"
+      - name: icon
+        description: "Wiki image file name"
+      - name: _loaded_at
+        description: "{{ doc('loaded_at') }}"
+      - name: _source_file
+        description: "{{ doc('source_file') }}"
+
+  - name: stg_prices
+    description: "Hourly prices, renamed, with missing volumes set to 0."
+    columns:
+      - name: price_id
+        description: "{{ doc('price_id') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: item_id
+        description: "{{ doc('item_id') }}"
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_items')
+                field: item_id
+              config:
+                severity: warn
+      - name: window_timestamp
+        description: "{{ doc('window_timestamp') }}"
+      - name: high_price
+        description: "{{ doc('high_price') }}"
+        data_tests:
+          - price_null_when_no_volume:
+              arguments:
+                volume_column: high_price_volume
+      - name: high_price_volume
+        description: "{{ doc('high_price_volume') }}"
+      - name: low_price
+        description: "{{ doc('low_price') }}"
+        data_tests:
+          - price_null_when_no_volume:
+              arguments:
+                volume_column: low_price_volume
+      - name: low_price_volume
+        description: "{{ doc('low_price_volume') }}"
+      - name: _loaded_at
+        description: "{{ doc('loaded_at') }}"
+      - name: _source_file
+        description: "{{ doc('source_file') }}"
